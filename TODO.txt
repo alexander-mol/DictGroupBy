@@ -1,0 +1,25 @@
+TODO
+
+- Allow for different kinds of aggregation functions
+    - sum
+    - average
+    - weighted average
+        - how to represent weighted average in instructions
+    - max
+    - min
+    - count
+    - custom
+
+- Test with facility, facility_collaterals, transactions, transaction_collaterals
+- Investigate what is left of the original dict afterwards (what needs copy / inplace)
+- Do some sort of input validation (level portals should be dicts with exactly one key etc.)
+    - Also, instructions need to match dict structure
+- Nan handling correctly with toggle
+- Implement non-hierarchical groupby
+- There should be a 'reindex' option so that the indices are numbers instead of group keys
+
+
+
+Edge cases to think about
+- when no instruction is specified for a field... (currently it will just get a random value from the group)
+- when no portal to remaining levels is supplied (currently it will just get on of the group element's lower levels)
