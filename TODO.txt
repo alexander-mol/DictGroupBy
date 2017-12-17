@@ -5,11 +5,14 @@ TODO
     - average
     - weighted average
         - how to represent weighted average in instructions
+    - arg max (e.g. take the stuff from the one with the highest EAD)
+        - how do you want to handle nans on either side?
     - max
     - min
     - count
     - custom
 
+- Change the way it gets called - first data, then instructions?
 - Test with facility, facility_collaterals, transactions, transaction_collaterals
 - Investigate what is left of the original dict afterwards (what needs copy / inplace)
 - Do some sort of input validation (level portals should be dicts with exactly one key etc.)
@@ -17,9 +20,12 @@ TODO
 - Nan handling correctly with toggle
 - Implement non-hierarchical groupby
 - There should be a 'reindex' option so that the indices are numbers instead of group keys
-
+- Feature to bring two levels 'to the same level' - 1 facility with 1 transaction can be considered as one level
+- Have a function that can generate the instructions
+- If a key doesn't exist .. there should probably be try-catches in the utils
 
 
 Edge cases to think about
-- when no instruction is specified for a field... (currently it will just get a random value from the group)
-- when no portal to remaining levels is supplied (currently it will just get on of the group element's lower levels)
+- when no instruction is specified for a field... (currently it will just get a random value from the group) -> maybe should be left out altogether
+- when no portal to remaining levels is supplied (currently it will just get one of the group element's lower levels) -> maybe it should be left out altogether
+- when a field is missing from a record (to be investigated)

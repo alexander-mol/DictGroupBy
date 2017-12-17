@@ -1,4 +1,5 @@
 import copy
+import aggregation_utils as au
 
 
 class DictAggregation:
@@ -19,20 +20,22 @@ class DictAggregation:
         # what still needs to be done is now to aggregate each group into a single record (and append all sub records)
         # and then to repeat the process on the sub records
         this_level_instructions = self.get_instructions_this_level(instructions)
+        level_portals = self.get_sub_level_portals(this_level_instructions)
         aggregated_dict = {}
         for group_key, group in grouped_dict.items():
-            _, group_rep = group.popitem()
+            group_rep = next(iter(group.values()))
             # aggregation of this group, current level
-            for record in group.values():
-                for instruction in this_level_instructions:
-                    if isinstance(instruction, tuple):
-                        group_rep[instruction[0]] += record[instruction[0]]  # assumes everything is sum for the moment
-                    else:
-                        # then this is a level portal, and we append the sub records to the existing group sub records
-                        key = next(iter(instruction.keys()))
-                        group_rep[key].update(record[key])
+            for instruction in this_level_instructions:
+                if isinstance(instruction, tuple):
+                    try:
+                        group_rep[instruction[0]] = instruction[1](group, instruction[0])
+                    except TypeError:
+                        group_rep[instruction[0]] = instruction[1][0](group, instruction[0], instruction[1][1])
+                else:
+                    # then this is a level portal, and we append the sub records to the existing group sub records
+                    key = next(iter(instruction.keys()))
+                    group_rep[key].update(au.collect(group, key))
             # use recursion here to join sub-records
-            level_portals = self.get_sub_level_portals(this_level_instructions)
             for level_portal in level_portals:
                 level_portal_key = next(iter(level_portal.keys()))  # e.g. 'transactions'
                 group_rep[level_portal_key] = self.aggregate(group_rep[level_portal_key],
@@ -60,6 +63,7 @@ class DictAggregation:
         return self.concat(keys)
 
 
+
 if __name__ == '__main__':
     data = {0: {'facility_type': 'b', 'outstanding': 70,
                 'transactions': {0: {'transaction_type': 'b', 'outstanding': 5},
@@ -76,7 +80,7 @@ if __name__ == '__main__':
                                  8: {'transaction_type': 'a', 'outstanding': 39},
                                  9: {'transaction_type': 'a', 'outstanding': 93}}}}
 
-    instructions = [('facility_type',), ('outstanding', 'sum'), {'transactions': [('transaction_type',),
-                                                                                 ('outstanding', 'sum')]}]
+    instructions = [('facility_type',), ('outstanding', au.sum), {'transactions': [('transaction_type',),
+                                                                                 ('outstanding', au.sum)]}]
     print(DictAggregation(data).aggregate(data, instructions))
     print(data)

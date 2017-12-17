@@ -2,6 +2,7 @@ import unittest
 import time
 import random
 from dict_aggregation import DictAggregation
+import aggregation_utils as au
 
 class TestDictGroupBy(unittest.TestCase):
 
@@ -34,8 +35,8 @@ class TestDictGroupBy(unittest.TestCase):
     def test_speed(self):
         data = self.generate_facilities(1000)
         t0 = time.time()
-        instructions = [('facility_type',), ('outstanding', 'sum'), {'transactions': [('transaction_type',),
-                                                                                      ('outstanding', 'sum')]}]
+        instructions = [('facility_type',), ('outstanding', au.sum), {'transactions': [('transaction_type',),
+                                                                                      ('outstanding', au.sum)]}]
         output = DictAggregation(data).aggregate(data, instructions)
         print(time.time() - t0, 'should be roughly 0.006 s')
 
@@ -63,9 +64,8 @@ class TestDictGroupBy(unittest.TestCase):
                                                   'a': {'transaction_type': 'a', 'outstanding': 132},
                                                   'b': {'transaction_type': 'b', 'outstanding': 135}}}}
 
-
-        instructions = [('facility_type',), ('outstanding', 'sum'), {'transactions': [('transaction_type',),
-                                                                                      ('outstanding', 'sum')]}]
+        instructions = [('facility_type',), ('outstanding', au.sum), {'transactions': [('transaction_type',),
+                                                                                      ('outstanding', au.sum)]}]
         output = DictAggregation(data).aggregate(data, instructions)
 
         assert output == expected_output
@@ -115,9 +115,9 @@ class TestDictGroupBy(unittest.TestCase):
                                      'b': {'transaction_type': 'b', 'outstanding': 74,
                                            'transaction_collaterals': {'b': {'type': 'b', 'value': 46}}}}}}
 
-        instructions = [('facility_type',), ('outstanding', 'sum'),
-                        {'transactions': [('transaction_type',), ('outstanding', 'sum'),
-                                          {'transaction_collaterals': [('type',), ('value', 'sum')]}]}]
+        instructions = [('facility_type',), ('outstanding', au.sum),
+                        {'transactions': [('transaction_type',), ('outstanding', au.sum),
+                                          {'transaction_collaterals': [('type',), ('value', au.sum)]}]}]
 
         output = DictAggregation(data).aggregate(data, instructions)
         assert output == expected_output
@@ -147,8 +147,8 @@ class TestDictGroupBy(unittest.TestCase):
                                    'transactions': {'c': {'transaction_type': 'c', 'outstanding': 77},
                                                     'a': {'transaction_type': 'a', 'outstanding': 132}}}}
 
-        instructions = [('facility_type',), ('customer_type',), ('outstanding', 'sum'),
-                        {'transactions': [('transaction_type',), ('outstanding', 'sum')]}]
+        instructions = [('facility_type',), ('customer_type',), ('outstanding', au.sum),
+                        {'transactions': [('transaction_type',), ('outstanding', au.sum)]}]
         output = DictAggregation(data).aggregate(data, instructions)
         assert output == expected_output
 
@@ -169,11 +169,11 @@ class TestDictGroupBy(unittest.TestCase):
                                      9: {'transaction_type': 'a', 'outstanding': 93}}}}
 
         expected_output = {'b': {'facility_type': 'b', 'outstanding': 281,
-                                 'transactions': {'': {'transaction_type': 'b', 'outstanding': 281}}},
+                                 'transactions': {'': {'transaction_type': 'a', 'outstanding': 281}}},
                            'a': {'facility_type': 'a', 'outstanding': 344,
                                  'transactions': {'': {'transaction_type': 'b', 'outstanding': 344}}}}
 
-        instructions = [('facility_type',), ('outstanding', 'sum'), {'transactions': [('outstanding', 'sum')]}]
+        instructions = [('facility_type',), ('outstanding', au.sum), {'transactions': [('outstanding', au.sum)]}]
         output = DictAggregation(data).aggregate(data, instructions)
         assert output == expected_output
 
@@ -194,15 +194,14 @@ class TestDictGroupBy(unittest.TestCase):
                                      9: {'transaction_type': 'a', 'outstanding': 93}}}}
 
         expected_output = {'b': {'facility_type': 'b', 'outstanding': 281,
-                                 'transactions': {4: {'transaction_type': 'b', 'outstanding': 36},
-                                                  5: {'transaction_type': 'a', 'outstanding': 96},
-                                                  6: {'transaction_type': 'a', 'outstanding': 79}}},
+                                 'transactions': {0: {'transaction_type': 'a', 'outstanding': 5},
+                                                  1: {'transaction_type': 'b', 'outstanding': 65}}},
                            'a': {'facility_type': 'a', 'outstanding': 344,
-                                 'transactions': {7: {'transaction_type': 'c', 'outstanding': 77},
-                                                  8: {'transaction_type': 'a', 'outstanding': 39},
-                                                  9: {'transaction_type': 'a', 'outstanding': 93}}}}
+                                 'transactions': {2: {'transaction_type': 'b', 'outstanding': 61},
+                                                  3: {'transaction_type': 'b', 'outstanding': 74}}}}
 
-        instructions = [('facility_type',), ('outstanding', 'sum')]
+
+        instructions = [('facility_type',), ('outstanding', au.sum)]
         output = DictAggregation(data).aggregate(data, instructions)
         assert output == expected_output
 
@@ -229,8 +228,7 @@ class TestDictGroupBy(unittest.TestCase):
                                      {'b': {'transaction_type': 'b', 'outstanding': 135}}}}
 
 
-        instructions = [('facility_type',), ('outstanding', 'sum'), {'transactions': [('transaction_type',),
-                                                                                      ('outstanding', 'sum')]}]
+        instructions = [('facility_type',), ('outstanding', au.sum), {'transactions': [('transaction_type',),
+                                                                                      ('outstanding', au.sum)]}]
         output = DictAggregation(data).aggregate(data, instructions)
-        print(output)
         assert output == expected_output
